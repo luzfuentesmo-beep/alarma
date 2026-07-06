@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Alarma</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); font-size: 1.5rem; font-weight: bold; color: #333; border-left: 8px solid #1e88e5; margin-bottom: 25px; text-align: center; max-width: 90%; }
+        #lblEstado { color: #0d47a1; display: block; margin-top: 10px; font-size: 1.3rem; }
+        .btn-container { display: flex; flex-direction: column; gap: 15px; width: 100%; max-width: 300px; }
+        button { background-color: #d32f2f; color: white; border: none; padding: 15px 20px; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; box-shadow: 0 3px 6px rgba(0,0,0,0.15); transition: background 0.2s; }
+        button:active { transform: scale(0.98); }
+        .btn-cerrar { background-color: #2e7d32; } /* Verde para la acción de cerrar/asegurar */
+    </style>
+</head>
+<body>
+
+    <div class="card">
+        Estado del Sistema: 
+        <span id="lblEstado">Cargando...</span>
+    </div>
+
+    <div class="btn-container">
+        <button class="btn-cerrar" id="btnCerrarPuerta">🔒 Cerrar Puerta</button>
+        <button class="btn-cerrar" id="btnCerrarVentanas">🔒 Cerrar Ventanas</button>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+        databaseURL: "https://alarma-de-seguridad-3a2f8-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // 1. Escuchar el estado actual de la alarma
+    onValue(ref(db, '/notificacion'), (snapshot) => {
+        document.getElementById('lblEstado').innerText = snapshot.val() || "Sin datos";
+    });
+
+    // 2. Acciones de los botones enviando datos directo a Firebase
+    document.getElementById('btnCerrarPuerta').addEventListener('click', () => {
+        // Al presionar, le dice a Firebase que el estado de alerta de la puerta terminó
+        set(ref(db, '/notificacion'), "Todo cerrado. Sistema Seguro.");
+        alert("Comando enviado: Puerta Cerrada de forma remota.");
+    });
+
+    document.getElementById('btnCerrarVentanas').addEventListener('click', () => {
+        // Al presionar, restablece el sistema a seguro
+        set(ref(db, '/notificacion'), "Todo cerrado. Sistema Seguro.");
+        alert("Comando enviado: Ventanas Cerradas de forma remota.");
+    });
+</script>
+</body>
+</html>
